@@ -1,12 +1,19 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 project (AlphaMatting)
 find_package(OpenCV REQUIRED)
-set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "-std=c++0x -w")
-set(PROJECT_LINK_LIBS cv_utils.so)
-link_directories(../cv_utils)
-include_directories(../cv_utils)
+
+find_package(gflags REQUIRED)
+find_package(fmt REQUIRED)
+find_package(spdlog REQUIRED)
+find_package(glog REQUIRED)
+
 file(GLOB SOURCES "*.cpp")
-add_executable(AlphaMatting ${SOURCES} TRW_S/errorFn.cpp)
-target_link_libraries(AlphaMatting ${OpenCV_LIBS})
-target_link_libraries(AlphaMatting ${PROJECT_LINK_LIBS})
+
+add_executable(AlphaMatting ${SOURCES})
+target_link_libraries(AlphaMatting ${OpenCV_LIBS}
+                      ${CV_UTILS_LIBS}
+                      gflags fmt glog)
+target_include_directories(AlphaMatting PUBLIC
+                           ${CV_UTILS_DIRS}
+                           ${BASE_DIRS})
+
