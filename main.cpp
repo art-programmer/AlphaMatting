@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <spdlog/spdlog.h>
@@ -31,7 +32,6 @@ DEFINE_int32(num_threads, 4, "Number of threads");
 DEFINE_int32(num_proposals, 1, "Number of proposals per threads");
 DEFINE_int32(exchange_amount, 1, "Number of proposals to exchange");
 DEFINE_int32(exchange_interval, 4, "Number of iterations per exchange");
-
 DEFINE_double(resize_factor, -2,
               "Resize factor, images will be resized by 2^(resize_factor)");
 
@@ -735,9 +735,9 @@ int main(int argc, char **argv) {
     ImageMask background_mask(background_mask_vec, image.cols, image.rows);
 
     ParallelFusion::ParallelFusionOption pipeline_option;
-    pipeline_option.max_iteration = 25;
+    pipeline_option.max_iteration = 250;
     pipeline_option.num_threads = FLAGS_num_threads;
-    pipeline_option.timeout = std::chrono::minutes(3);
+    pipeline_option.timeout = std::chrono::minutes(10);
     typedef AlphaMattingLabelSpace<long> Space;
     typedef ParallelFusion::ParallelFusionPipeline<Space> Pipeline;
 
@@ -807,7 +807,31 @@ int main(int argc, char **argv) {
     pipline.runParallelFusion(initials, generators, solvers, threadOptions);
     ParallelFusion::SolutionType<Space> solution;
     pipline.getBestLabeling(solution);
-    LOG(INFO) << "Final solution energy: {}"_format(solution.first);
+    LOG(INFO) << "Final solution energy: {:.4f}"_format(solution.first);
+
+    auto &thread_obs = pipline.getAllThreadProfiles();
+    std::vector<std::tuple<double, double, int>> all_obs;
+
+    double previous_energy = 1e100;
+    int tid = 0;
+    for (auto &t_profile : thread_obs) {
+      for (auto &obs : t_profile) {
+        all_obs.emplace_back(obs.first, obs.second, tid);
+      }
+      ++tid;
+    }
+
+    std::sort(all_obs.begin(), all_obs.end(),
+              [](std::tuple<double, double, int> &a,
+                 std::tuple<double, double, int> &b) {
+                return std::get<0>(a) < std::get<0>(b);
+              });
+
+    std::ofstream raw("raw-time-v-energy.csv", std::ios::out);
+    for (auto &obs : all_obs)
+      fmt::print(raw, "{}, {}, {}\n", std::get<0>(obs), std::get<1>(obs),
+                 std::get<2>(obs));
+    raw.close();
 
 #if 1
     const auto &current_solution = solution.second;
@@ -911,6 +935,6 @@ for (vector<long>::const_iterator pixel_it = current_solution.begin();
 
 #endif
   }
-  fmt::print("Final error: {}", training_error);
+  fmt::print("Final error: {:.5f}", training_error);
   return 0;
 }
