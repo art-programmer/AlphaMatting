@@ -32,6 +32,7 @@ DEFINE_int32(num_threads, 4, "Number of threads");
 DEFINE_int32(num_proposals, 1, "Number of proposals per threads");
 DEFINE_int32(exchange_amount, 1, "Number of proposals to exchange");
 DEFINE_int32(exchange_interval, 4, "Number of iterations per exchange");
+DEFINE_int32(timeout, 600, "Timeout in seconds");
 DEFINE_double(resize_factor, -2,
               "Resize factor, images will be resized by 2^(resize_factor)");
 
@@ -737,7 +738,7 @@ int main(int argc, char **argv) {
     ParallelFusion::ParallelFusionOption pipeline_option;
     pipeline_option.max_iteration = 250;
     pipeline_option.num_threads = FLAGS_num_threads;
-    pipeline_option.timeout = std::chrono::minutes(10);
+    pipeline_option.timeout = std::chrono::seconds(FLAGS_timeout);
     typedef AlphaMattingLabelSpace<long> Space;
     typedef ParallelFusion::ParallelFusionPipeline<Space> Pipeline;
 
