@@ -25,9 +25,9 @@ echo "Running fusion move"
 # ${exe} -img_name=${data_set} -num_threads=1 -num_proposals=1 -exchange_amount=0 -exchange_interval=1 -timeout=${timeout_time} -resize_factor=${resize_factor}
 # cp ${data_file} fusion_move.csv
 for i in {1..5}; do
-    ${exe} -img_name=${data_set} -num_threads=1 -num_proposals=1 -exchange_amount=0 -exchange_interval=1 -timeout=${timeout_time} -resize_factor=${resize_factor}
-    cp ${data_file} "$fusion_move_${i}.csv"
-  done
+  ${exe} -img_name=${data_set} -num_threads=1 -num_proposals=1 -exchange_amount=0 -exchange_interval=1 -timeout=${timeout_time} -resize_factor=${resize_factor}
+  cp ${data_file} "fusion_move_${i}.csv"
+done
 
 echo "Running parallel fusion move"
 # ${exe} -img_name=${data_set} -num_threads=2 -num_proposals=1 -exchange_amount=0 -exchange_interval=1 -timeout=${timeout_time} -resize_factor=${resize_factor}
