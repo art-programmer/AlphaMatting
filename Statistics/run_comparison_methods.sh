@@ -21,28 +21,37 @@ run_test() {
 
 }
 
-# echo "Running fusion move"
+echo "Running fusion move"
 # ${exe} -img_name=${data_set} -num_threads=1 -num_proposals=1 -exchange_amount=0 -exchange_interval=1 -timeout=${timeout_time} -resize_factor=${resize_factor}
 # cp ${data_file} fusion_move.csv
+for i in {1..5}; do
+    ${exe} -img_name=${data_set} -num_threads=1 -num_proposals=1 -exchange_amount=0 -exchange_interval=1 -timeout=${timeout_time} -resize_factor=${resize_factor}
+    cp ${data_file} "$fusion_move_${i}.csv"
+  done
 
-# echo "Running parallel fusion move"
+echo "Running parallel fusion move"
 # ${exe} -img_name=${data_set} -num_threads=2 -num_proposals=1 -exchange_amount=0 -exchange_interval=1 -timeout=${timeout_time} -resize_factor=${resize_factor}
 # cp ${data_file} parallel_fusion_move.csv
+run_test "parallel_fusion_move" 1 0 1
 
-# echo "Running SF-MF"
+echo "Running SF-MF"
 # ${exe} -img_name=${data_set} -num_threads=2 -num_proposals=1 -exchange_amount=1 -exchange_interval=3 -timeout=${timeout_time} -resize_factor=${resize_factor}
 # cp ${data_file} sf-mf.csv
+run_test "sf-mf" 1 1 3
 
-# echo "Running SF-SS"
+echo "Running SF-SS"
 # ${exe} -img_name=${data_set} -num_threads=2 -num_proposals=3 -exchange_amount=0 -exchange_interval=1 -timeout=${timeout_time} -resize_factor=${resize_factor}
 # cp ${data_file} sf-ss.csv
+run_test "sf-ss" 3 0 1
 
-# echo "Running SF"
+echo "Running SF"
 # ${exe} -img_name=${data_set} -num_threads=2 -num_proposals=3 -exchange_amount=1 -exchange_interval=3 -timeout=${timeout_time} -resize_factor=${resize_factor}
 # cp ${data_file} sf.csv
+run_test "sf" 3 1 3
 
-echo "Running SF-Baeysian"
-run_test "bopt" 2 1 1
 
-echo "Running SF-Grid"
-run_test "grid" 2 1 1
+# echo "Running SF-Baeysian"
+# run_test "bopt" 2 1 1
+
+# echo "Running SF-Grid"
+# run_test "grid" 2 1 1
